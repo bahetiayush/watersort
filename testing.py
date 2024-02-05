@@ -78,6 +78,8 @@ from game_setup import *
 # movements = movements-1 => [M1]
 
 
+
+
 # system_state_M2'' = (system_state_M1, M2'')
 #No dead end
 #movements = [M1,M3]
