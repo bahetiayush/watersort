@@ -34,24 +34,38 @@ class Tube:
         """
         self.name = name
         self.colors = colors if colors else [None] * 4
+        self.max_slots = 4
         self.valid_tube()
+
 
     def __repr__(self) -> str:
         """Returns the name of the tube."""
         return self.name
 
-    def filled_slots(self) -> int:
-        """Returns the number of filled slots in the tube."""
-        return sum(1 for color in self.colors if color is not None)
+    
+    def is_empty(self) -> bool:
+        """Checks if the tube is empty."""
+        return self.filled_slots() == 0
 
-    def empty_slots(self) -> int:
-        """Returns the number of empty slots in the tube."""
-        return 4 - self.filled_slots()
+    def is_full(self) -> bool:
+        """Checks if the tube is full."""
+        return self.filled_slots() == self.max_slots
+    
+    def is_bottom(self, color):
+        """checks if the color is at the bottom"""
+        return self.colors[0] == color
 
     def completed_tube(self) -> bool:
         """Returns True if the tube is completed (all 4 slots filled with the same color)."""
-        filled_colors = [color for color in self.colors if color is not None]
-        return len(filled_colors) == 4 and len(set(filled_colors)) == 1
+        if self.is_empty():
+            return False
+        first_color = None
+        for color in self.colors:
+            if first_color is None:
+                first_color = color
+            if color != first_color:
+                return False
+        return True
 
     def empty_tube(self) -> bool:
         """Returns True if the tube is empty."""
@@ -104,6 +118,38 @@ class Tube:
         else:
             check_colors(self.colors)
 
+    def add_color(self, color: str):
+        """Adds a color to the tube."""
+        if self.is_full():
+            raise ValueError("Tube is full")
+        self.colors.append(color)
+        #Automatic update handled by getter methods
+
+
+    def remove_color(self):
+        """Removes a color from the tube."""
+        if self.is_empty():
+            raise ValueError("Tube is empty")
+        color = self.colors.pop()
+        #Automatic update handled by getter methods
+        return color
+
+    def get_color_to_move(self) -> Optional[str]:
+        """Gets the color that should be moved from the top."""
+        for color in reversed(self.colors):
+            if color is not None:
+                return color
+        return None
+
+    def filled_slots(self) -> int:
+        """Returns the number of filled slots."""
+        return sum(1 for color in self.colors if color is not None)
+
+    def empty_slots(self) -> int:
+        """Returns the number of empty slots."""
+        return self.max_slots - self.filled_slots()
+
+
 
 def check_colors(colors: list) -> None:
     """
@@ -155,6 +201,9 @@ class Movement:
         self.from_tube.colors[
             from_tube_filled_slots - from_tube_top_color_slots: from_tube_filled_slots
         ] = [None] * from_tube_top_color_slots
+        # Explicitly update tubes after modification
+        self.from_tube.valid_tube()
+        self.to_tube.valid_tube()
 
     def is_possible(self) -> bool:
         """
@@ -180,3 +229,4 @@ class Movement:
             return False
 
         return True
+

@@ -9,7 +9,7 @@ from game_solve import initialize_tubes
 from depth_search import get_top_states_with_scores, dead_ends
 from tube_setup import tube_to_dict, Movement
 from game_setup import GameState, is_game_completed, is_dead_end
-import requests
+import random
 
 
 current_state: GameState = initialize_tubes()
@@ -182,7 +182,6 @@ class MyHandler(http.server.SimpleHTTPRequestHandler):
         else:
             self.send_response(404)
             self.end_headers()
-
 
 def start_local_server(port: int = 8000, filename: str = "index.html") -> None:
     """

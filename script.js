@@ -20,6 +20,10 @@ function applySelectedMove() {
         })
         .then(data => {
             updateTubes(data.tubes); // Update the tubes in every response.
+            if (data.game_completed) {
+                showGameCompletedMessage();
+                return;
+            }
             if (data.status === 'success') {
                 getTopMoves();
             } else if (data.status === 'dead_end') {

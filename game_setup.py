@@ -8,8 +8,9 @@ class GameState:
         self,
         tubes: List[Tube],
         previous_state=None,
-        movement: Optional[Movement] = None,
-    ):
+        movement: Optional[Movement] = None,):
+        
+        self.moves: List[str] = []
         self.tubes: List[Tube] = tubes
         self.movement: Optional[Movement] = movement
         self.previous_state: Optional[GameState] = previous_state
@@ -17,6 +18,10 @@ class GameState:
 
     def __repr__(self) -> str:
         return f"GameState(tubes={self.tubes}, movement={self.movement})"
+    
+    def add_move(self, move: Movement):
+        """Adds a move to the game state's move history."""
+        self.moves.append(str(move))
 
 
 def all_colors(list_of_tubes: List[Tube]) -> List[str]:
@@ -131,9 +136,25 @@ def find_all_legal_movements(list_of_tubes: List[Tube]) -> List[
         A list of tuples, where each tuple is a (from_tube, to_tube) move.
     """
     legal_movements: List[Movement] = []
+    empty_tubes: List[Tube] = [tube for tube in list_of_tubes if tube.is_empty()]
+    non_empty_tubes: List[Tube] = [
+        tube for tube in list_of_tubes if not tube.is_empty()
+    ]
+
+    representative_empty_tube: Optional[Tube] = (
+        empty_tubes[0] if empty_tubes else None
+    )
+
     for from_tube in list_of_tubes:
-        for to_tube in list_of_tubes:
-            movement = Movement(from_tube, to_tube)
+        # Moves to non-empty tubes
+        for to_tube in non_empty_tubes:
+            movement: Movement = Movement(from_tube, to_tube)
             if movement.is_possible():
-                legal_movements.append(movement)  # create a Movement object
+                legal_movements.append(movement)
+
+        # Move to the representative empty tube (if any)
+        if representative_empty_tube:
+            movement: Movement = Movement(from_tube, representative_empty_tube)
+            if movement.is_possible():
+                legal_movements.append(movement)
     return legal_movements
