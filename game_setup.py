@@ -7,12 +7,10 @@ class GameState:
     def __init__(
         self,
         tubes: List[Tube],
-        previous_state=None,
-        movement: Optional[Movement] = None,):
+        previous_state=None):
         
-        self.moves: List[str] = []
+        self.moves: List[Movement] = []
         self.tubes: List[Tube] = tubes
-        self.movement: Optional[Movement] = movement
         self.previous_state: Optional[GameState] = previous_state
         self.score: Optional[int] = None
 
@@ -21,7 +19,7 @@ class GameState:
     
     def add_move(self, move: Movement):
         """Adds a move to the game state's move history."""
-        self.moves.append(str(move))
+        self.moves.append(move)
 
 
 def all_colors(list_of_tubes: List[Tube]) -> List[str]:

@@ -21,7 +21,7 @@ function applySelectedMove() {
         .then(data => {
             updateTubes(data.tubes); // Update the tubes in every response.
             if (data.game_completed) {
-                showGameCompletedMessage();
+                showGameCompletedMessage(data.final_move_list);
                 return;
             }
             if (data.status === 'success') {
@@ -176,7 +176,10 @@ function sendDeadEndState(tubes) {
 }
 
 function sendUndoRequest() {
-    fetch(serverBase + '/api/undo_move')
+    fetch(serverBase + '/api/undo_move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' }
+    })
     .then(response => response.json())
     .then(data => {
         // Update the UI with the new state
@@ -204,10 +207,19 @@ function showDeadEndMessage() {
     }, 1500);
 }
 
-function showGameCompletedMessage() {
+
+function showGameCompletedMessage(moveList) {
     var gameCompletedMessageContainer = document.getElementById('top-moves-container');
     gameCompletedMessageContainer.innerHTML = '<h2>Game Completed!</h2>';
+    const moveHistoryElement = document.createElement('ol');
+    moveList.forEach((move, index) => {
+        const listItem = document.createElement('li');
+        listItem.textContent = `${move.from} -> ${move.to}`;
+        moveHistoryElement.appendChild(listItem);
+    });
+    gameCompletedMessageContainer.appendChild(moveHistoryElement);
 }
+
 getInitialState()
 
 // undo button code below

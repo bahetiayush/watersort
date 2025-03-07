@@ -60,9 +60,9 @@ def get_new_state(game_state: GameState, move: Movement) -> GameState:
     new_move.execute()
 
     new_game_state: GameState = GameState(
-        tubes=new_list_of_tubes, movement=new_move, previous_state=game_state
+        tubes=new_list_of_tubes, previous_state=game_state
     )
-    new_game_state.moves = game_state.moves + [str(move)]
+    new_game_state.moves = game_state.moves + [move]
     return new_game_state
 
 
@@ -75,9 +75,7 @@ def is_game_over_or_dead_end(new_game_state: GameState) -> bool:
         return True  # Game completed
     return False  # Ongoing game
 
-def get_top_states_with_scores(
-    game_state: GameState,
-) -> List[Dict[str, Any]]:
+def get_top_states_with_scores(game_state: GameState,) -> List[Dict[str, Any]]:
     """Retrieves top 5 states, including scores (unless game is over)."""
     top_states = []
     possible_moves = find_all_legal_movements(game_state.tubes)
@@ -99,8 +97,9 @@ def get_top_states_with_scores(
         original_to_tube = move.to_tube
         if original_to_tube.is_empty():
             tube_score -= 10
+        
         move_score = len(find_all_legal_movements(new_state.tubes))
-        from_tube = new_state.movement.from_tube
+        from_tube = move.from_tube
         tube_score += initial_tube_scores[from_tube.name]
         final_score = move_score + tube_score
         valid_states_with_scores.append((new_state, move, game_over, final_score))
