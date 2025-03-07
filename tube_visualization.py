@@ -9,7 +9,6 @@ from game_solve import initialize_tubes
 from depth_search import get_top_states_with_scores, dead_ends
 from tube_setup import tube_to_dict, Movement
 from game_setup import GameState, is_game_completed, is_dead_end
-import random
 
 
 current_state: GameState = initialize_tubes()
