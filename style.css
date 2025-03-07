@@ -1,58 +1,120 @@
 body {
-    font-family: sans-serif;
+    font-family: Verdana;
     display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.tubes-container {
-    display: flex;
-    flex-wrap: wrap;
     justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+    background-color: #f0f0f0;
+}
+
+.container {
+    position: relative;
+    top:0;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-gap: 15px;
+    text-align: center;
+    background-color: #fff;
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    max-width: 500px;
     width: 80%;
 }
-.tube-wrapper {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    margin: 10px;
+
+#tubes-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(50px, 1fr)); /* Responsive grid */
+    grid-gap: 20px;
 }
+
 .tube {
-    width: 80px;
-    height: 200px;
-    border: 2px solid black;
+    width: 50px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
     display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
+    flex-direction: column-reverse; 
+    overflow: hidden;
+    position: relative;
+    min-height: 120px;
 }
-.slot {
-    width: 100%;
-    height: 25%;
-    border-top: 1px solid black;
-}
-.BROWN { background-color: brown; }
-.LIGHT_GREEN { background-color: lightgreen; }
-.BLUE { background-color: blue; }
-.GREY { background-color: grey; }
-.GREEN { background-color: green; }
-.RED { background-color: red; }
-.PINK { background-color: pink; }
-.MEHENDI { background-color: #8A2BE2; } /* Violet-like */
-.LIGHT_BLUE { background-color: lightblue; }
-.ORANGE { background-color: orange; }
-.PURPLE { background-color: purple; }
-.YELLOW { background-color: yellow; }
-.NONE { background-color: transparent;}
+
 .tube-name {
+    font-size: 13px;
+    bottom: 0;
+    left: 0;
     text-align: center;
-    margin-top: 5px;
-    font-weight: bold;
+    background-color:transparent;
+    padding: 2px 5px;
+    z-index: 1; 
+    text-align: center;
 }
+
+.slot {
+    height: 35px;
+    width: 100%;
+    border-bottom: 1px solid #ccc;
+    background-color: transparent; /* Make default background transparent */
+}
+
+.slot.BROWN { background-color: brown; }
+.slot.LIGHT_GREEN { background-color: lightgreen; }
+.slot.BLUE { background-color: blue; }
+.slot.GREY { background-color: grey; }
+.slot.GREEN { background-color: green; }
+.slot.RED { background-color: red; }
+.slot.PINK { background-color: pink; }
+.slot.MEHENDI { background-color: #8A2BE2; } 
+.slot.LIGHT_BLUE { background-color: lightblue; }
+.slot.ORANGE { background-color: orange; }
+.slot.PURPLE { background-color: purple; }
+.slot.YELLOW { background-color: yellow; }
+.slot.NONE { background-color: whitesmoke;}
+
+
 #top-moves-container {
-    margin-top: 20px;
     display: flex;
     flex-direction: column;
     align-items: center;
+    margin-top: 10px;
 }
-.move-option {
+
+#top-moves-buttons-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+}
+
+#top-moves-buttons-container button {
+    padding: 8px 16px;
+    background-color: #4CAF50; /* Green */
+    border: none;
+    color: white;
+    text-align: center;
+    text-decoration: none;
+    display: inline-block;
+    font-size: 16px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Smooth transition */
     margin-bottom: 10px;
 }
+
+#top-moves-buttons-container button:hover {
+    background-color: #7e9184; /* Darker green on hover */
+}
+
+#top-moves-buttons-container button:disabled {
+    background-color: #ccc; /* Grayed out for disabled buttons */
+    cursor: default;
+}
+
+#moves-list {
+    text-align: left; /* Left-aligns the moves */
+    margin-left: 20px;
+    margin-bottom: 10px;
+}
+
+#top-moves-container ul { 
+    text-align: left;
+  }

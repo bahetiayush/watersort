@@ -3,7 +3,7 @@ from game_setup import GameState
 from tube_setup import Tube
 
 # Constants for controlling initial state
-USE_DEFAULT_INITIAL_STATE = False  # Set to False to use TEST_INITIAL_STATE
+USE_DEFAULT_INITIAL_STATE = True  # Set to False to use TEST_INITIAL_STATE
 # Constants for the default game state
 DEFAULT_TUBE_COLORS: Dict[str, List[Any]] = {
     "Tube1": ["BROWN", "LIGHT_GREEN", "BLUE", "GREY"],
