@@ -1,17 +1,61 @@
 const serverBase = 'http://localhost:8000';
 
+function getInitialState() {
+    fetch(serverBase + '/api/initial_state')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            updateTubes(data.tubes);
+            getTopMoves();
+        })
+        .catch(handleError);
+}
+
+function getTopMoves() {
+    fetch(serverBase + '/api/top_moves')
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            updateMoves(data.top_moves);
+            if (!data.top_moves || data.top_moves.length === 0) {
+                setTimeout(sendUndoRequest, 500);
+            }
+        })
+        .catch(handleError);
+}
+
 function applySelectedMove() {
     const selectedMoveIndexElement = document.querySelector('input[name="selected_move"]:checked');
 
     if (selectedMoveIndexElement) {
         const selectedMoveIndex = selectedMoveIndexElement.value;
-        fetch(serverBase + '/api/apply_move', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ move_index: selectedMoveIndex }),
-        })
+        const selectedMoveLabel = selectedMoveIndexElement.nextElementSibling; // Get the label element
+
+        // Extract from_tube and to_tube from the label text using a regular expression
+        const match = selectedMoveLabel.textContent.match(/Move from (\w+) to (\w+)/); 
+
+        if (match) {
+            const fromTube = match[1];
+            const toTube = match[2];
+
+            fetch(serverBase + '/api/apply_move', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ 
+                    from_tube: fromTube, 
+                    to_tube: toTube 
+                }),
+            })
             .then(response => response.json())
             .then(data => {
                 updateTubes(data.tubes);
@@ -28,9 +72,26 @@ function applySelectedMove() {
                 }
             })
             .catch(handleError);
-    } else {
+    }} else {
         console.error('No move selected.');
     }
+}
+
+function sendUndoRequest() {
+    fetch(serverBase + '/api/undo_move', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            updateTubes(data.tubes);
+            getTopMoves();}
+        ).catch(handleError);
 }
 
 function updateTubes(tubes) {
@@ -103,8 +164,8 @@ function updateMoves(top_moves) {
             label.htmlFor = `move-${index}`;
             label.textContent = `Move from ${fromTubeName} to ${toTubeName} (Score: ${score})`;
 
-            const moveItem = document.createElement('div'); // Use a div instead of li
-            moveItem.style.marginBottom = "5px"; // Add some spacing
+            const moveItem = document.createElement('div');
+            moveItem.style.marginBottom = "5px";
             moveItem.appendChild(radioInput);
             moveItem.appendChild(label);
             movesContainer.appendChild(moveItem);
@@ -113,84 +174,6 @@ function updateMoves(top_moves) {
     } else {
         topMovesHeading.textContent = 'Dead end reached';
     }
-}
-
-function createButton(text, onClick) {
-    const button = document.createElement('button');
-    button.textContent = text;
-    button.addEventListener('click', onClick);
-    return button;x
-}
-
-function getTopMoves() {
-    fetch(serverBase + '/api/top_moves')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            updateMoves(data.top_moves);
-            updateTubes(data.state);
-            if (!data.top_moves || data.top_moves.length === 0) {
-                sendDeadEndState(data.state);
-                setTimeout(sendUndoRequest, 500);
-            }
-        })
-        .catch(handleError);
-}
-
-function getInitialState() {
-    fetch(serverBase + '/api/initial_state')
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            updateTubes(data.tubes);
-            getTopMoves();
-        })
-        .catch(handleError);
-}
-
-function sendDeadEndState(tubes) {
-    fetch(serverBase + '/api/add_dead_end', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ state: tubes }),
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => { })
-        .catch(handleError);
-}
-
-function sendUndoRequest() {
-    fetch(serverBase + '/api/undo_move', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-    })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            updateTubes(data.tubes);
-            updateMoves(data.top_moves);
-            if (!data.top_moves || data.top_moves.length === 0) {
-                setTimeout(sendUndoRequest, 500);
-            }
-        })
-        .catch(handleError);
 }
 
 function showGameCompletedMessage(moveList) {
@@ -213,12 +196,33 @@ function showGameCompletedMessage(moveList) {
 
 function showErrorMessage(message) {
     console.error('Error:', message);
-    alert(message);
 }
 
 function handleError(error) {
     console.error('Error:', error);
-    alert('An error occurred. Please try again.');
+}
+
+function createButton(text, onClick) {
+    const button = document.createElement('button');
+    button.textContent = text;
+    button.addEventListener('click', onClick);
+    return button;x
+}
+
+function sendDeadEndState(tubes) {
+    fetch(serverBase + '/api/add_dead_end', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ state: tubes }),
+    })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => { })
+        .catch(handleError);
 }
 
 getInitialState();

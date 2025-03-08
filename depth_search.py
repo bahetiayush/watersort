@@ -1,15 +1,13 @@
 import copy
-from typing import List, Tuple, Dict, Any, Optional
+from typing import List, Dict, Any
 from game_setup import (
     GameState,
     find_all_legal_movements,
-    is_dead_end,
+    get_new_state,
     is_game_completed
 )
-from tube_setup import Tube, tube_to_dict, Movement
+from tube_setup import Tube, tube_to_dict
 
-# Set of dead ends
-dead_ends: set[Tuple[Tuple[Optional[str], ...], ...]] = set()
 
 def calculate_color_scores(tubes:List[Tube]) -> Dict[str, float]:
     """Calculates the color score for all tubes."""
@@ -42,43 +40,10 @@ def calculate_tube_score(tube: Tube, color_scores: Dict[str,float]) -> float:
         tube_score += color_scores[color]
     return tube_score
 
-
-def get_new_state(game_state: GameState, move: Movement) -> GameState:
-    """Applies a single move to a game state and returns the new state."""
-    new_list_of_tubes: List[Tube] = copy.deepcopy(game_state.tubes)
-
-    from_tube: Tube = next(
-        tube for tube in new_list_of_tubes if move.from_tube.name == tube.name
-    )
-    to_tube: Tube = next(
-        tube for tube in new_list_of_tubes if move.to_tube.name == tube.name
-    )
-    new_move = copy.deepcopy(move)
-    new_move.from_tube = from_tube
-    new_move.to_tube = to_tube
-
-    new_move.execute()
-
-    new_game_state: GameState = GameState(
-        tubes=new_list_of_tubes, previous_state=game_state
-    )
-    new_game_state.moves = game_state.moves + [move]
-    return new_game_state
-
-
-def is_game_over_or_dead_end(new_game_state: GameState) -> bool:
-    """Checks if the game is completed or in a dead end."""
-
-    if is_dead_end(new_game_state):
-        return False  # Dead end
-    if is_game_completed(new_game_state):
-        return True  # Game completed
-    return False  # Ongoing game
-
-def get_top_states_with_scores(game_state: GameState,) -> List[Dict[str, Any]]:
+def get_top_states_with_scores(game_state: GameState, dead_ends: List) -> List[Dict[str, Any]]:
     """Retrieves top 5 states, including scores (unless game is over)."""
     top_states = []
-    possible_moves = find_all_legal_movements(game_state.tubes)
+    possible_moves = find_all_legal_movements(game_state, dead_ends)
     valid_states_with_scores = []
 
     color_scores = calculate_color_scores(game_state.tubes)
@@ -92,13 +57,14 @@ def get_top_states_with_scores(game_state: GameState,) -> List[Dict[str, Any]]:
         if state_tuple in dead_ends:
             continue
 
-        game_over = is_game_over_or_dead_end(new_state)
+        game_over = is_game_completed(new_state)
+        
         tube_score = 0
         original_to_tube = move.to_tube
         if original_to_tube.is_empty():
             tube_score -= 10
         
-        move_score = len(find_all_legal_movements(new_state.tubes))
+        move_score = len(find_all_legal_movements(new_state, dead_ends))
         from_tube = move.from_tube
         tube_score += initial_tube_scores[from_tube.name]
         final_score = move_score + tube_score

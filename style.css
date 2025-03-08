@@ -58,13 +58,13 @@ body {
 }
 
 .slot.BROWN { background-color: brown; }
-.slot.LIGHT_GREEN { background-color: lightgreen; }
+.slot.LIGHT_GREEN { background-color: rgb(158, 218, 158); }
 .slot.BLUE { background-color: blue; }
 .slot.GREY { background-color: grey; }
-.slot.GREEN { background-color: green; }
+.slot.GREEN { background-color: rgb(0, 252, 0); }
 .slot.RED { background-color: red; }
 .slot.PINK { background-color: pink; }
-.slot.MEHENDI { background-color: #8A2BE2; } 
+.slot.MEHENDI { background-color: #468844; } 
 .slot.LIGHT_BLUE { background-color: lightblue; }
 .slot.ORANGE { background-color: orange; }
 .slot.PURPLE { background-color: purple; }

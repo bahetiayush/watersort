@@ -169,6 +169,10 @@ def tube_to_dict(tube: Tube) -> Dict[str, Any]:
     return {"name": tube.name, "colors": tube.colors}
 
 
+def tubes_list_to_dict(tubes: List[Tube]) -> List[Dict[str, Any]]:
+    """Converts a list of Tube objects to a list of dictionaries."""
+    return [tube_to_dict(tube) for tube in tubes]
+
 class Movement:
     """Represents a single move between two tubes."""
 
