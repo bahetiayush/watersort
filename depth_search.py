@@ -1,12 +1,11 @@
-import copy
-from typing import List, Dict, Any
+from typing import List, Dict, Any, Optional
 from game_setup import (
     GameState,
     find_all_legal_movements,
     get_new_state,
     is_game_completed
 )
-from tube_setup import Tube, tube_to_dict
+from tube_setup import Movement, Tube, tube_to_dict
 
 
 def calculate_color_scores(tubes:List[Tube]) -> Dict[str, float]:
@@ -86,3 +85,35 @@ def get_top_states_with_scores(game_state: GameState, dead_ends: List) -> List[D
         }
         top_states.append(move_data)
     return top_states
+
+
+def solve_puzzle(initial_state: GameState, dead_ends: set) -> Optional[List[Movement]]:
+    """Solves the water sort puzzle using a depth-first search approach."""
+    solution_moves: List[Movement] = []
+    current_state: GameState = initial_state
+
+    while not is_game_completed(current_state):
+        top_states = get_top_states_with_scores(current_state, dead_ends)
+
+        if not top_states:  # Dead end reached
+            if tuple(tuple(tube.colors) for tube in current_state.tubes) not in dead_ends:
+                dead_ends.add(tuple(tuple(tube.colors) for tube in current_state.tubes))
+
+            if current_state.previous_state:
+                current_state = current_state.previous_state
+                solution_moves.pop()
+            else:
+                return None  # No solution found
+
+        else:
+            best_move = top_states[0]["movement"][0]
+            best_move_from = next((tube for tube in current_state.tubes if tube.name == best_move["name"]))
+            best_move_to = top_states[0]["movement"][1]
+            best_move_to_tube = next((tube for tube in current_state.tubes if tube.name == best_move_to["name"]))
+            
+            new_move = Movement(best_move_from, best_move_to_tube)
+            
+            current_state = get_new_state(current_state, new_move)
+            solution_moves.append(new_move)
+
+    return solution_moves

@@ -9,10 +9,9 @@ body {
 
 .container {
     position: relative;
-    top:0;
-    display: grid;
-    grid-template-rows: auto 1fr auto;
-    grid-gap: 15px;
+    top: 0;
+    display: flex;
+    flex-direction: column;
     text-align: center;
     background-color: #fff;
     padding: 30px;
@@ -20,6 +19,7 @@ body {
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     max-width: 500px;
     width: 80%;
+    gap: 15px;
 }
 
 #tubes-container {
@@ -33,7 +33,7 @@ body {
     border: 1px solid #ccc;
     border-radius: 5px;
     display: flex;
-    flex-direction: column-reverse; 
+    flex-direction: column;
     overflow: hidden;
     position: relative;
     min-height: 120px;
@@ -44,9 +44,9 @@ body {
     bottom: 0;
     left: 0;
     text-align: center;
-    background-color:transparent;
+    background-color: transparent;
     padding: 2px 5px;
-    z-index: 1; 
+    z-index: 1;
     text-align: center;
 }
 
@@ -79,13 +79,13 @@ body {
     margin-top: 10px;
 }
 
-#top-moves-buttons-container {
+.top-moves-buttons-container { /* Changed to class selector */
     display: flex;
     justify-content: center;
     gap: 10px;
 }
 
-#top-moves-buttons-container button {
+.top-moves-buttons-container button { /* Changed to class selector */
     padding: 8px 16px;
     background-color: #4CAF50; /* Green */
     border: none;
@@ -100,11 +100,11 @@ body {
     margin-bottom: 10px;
 }
 
-#top-moves-buttons-container button:hover {
+.top-moves-buttons-container button:hover { /* Changed to class selector */
     background-color: #7e9184; /* Darker green on hover */
 }
 
-#top-moves-buttons-container button:disabled {
+.top-moves-buttons-container button:disabled { /* Changed to class selector */
     background-color: #ccc; /* Grayed out for disabled buttons */
     cursor: default;
 }
@@ -115,6 +115,6 @@ body {
     margin-bottom: 10px;
 }
 
-#top-moves-container ul { 
+#top-moves-container ul {
     text-align: left;
-  }
+}

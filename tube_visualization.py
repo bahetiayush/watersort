@@ -6,7 +6,7 @@ import json
 import copy
 from typing import List, Dict, Any, Optional, Tuple
 from game_solve import initialize_tubes
-from depth_search import get_top_states_with_scores
+from depth_search import get_top_states_with_scores, solve_puzzle
 from tube_setup import Movement, tubes_list_to_dict
 from game_setup import GameState, find_all_legal_movements, is_game_completed, get_new_state
 
@@ -55,6 +55,19 @@ class TubeVisualizer:
             print("Dead end after doing undo. Moving back the movement")
         
         return result
+    
+    def solve_puzzle_api(self):
+        """Handles the /api/solve_puzzle API request."""
+        try:
+            solution = solve_puzzle(self.current_state, self.dead_ends)
+            if solution:
+                solution_json = [{"from": move.from_tube.name, "to": move.to_tube.name} for move in solution]
+                return {"status": "success", "solution": solution_json}
+            else:
+                return {"status": "failure", "message": "No solution found"}
+        except Exception as e:
+            return {"status": "error", "message": str(e)}
+
 
     class MyHandler(http.server.SimpleHTTPRequestHandler):
         def __init__(self, request, client_address, server, visualizer):
@@ -118,9 +131,15 @@ class TubeVisualizer:
                     self.end_headers()
                     self.wfile.write(json.dumps(result).encode())
 
-
                 elif self.path == "/api/undo_move":
                     result = self.visualizer.undo_move()
+                    self.send_response(200)
+                    self.send_header("Content-type", "application/json")
+                    self.end_headers()
+                    self.wfile.write(json.dumps(result).encode())
+
+                elif self.path == "/api/solve_puzzle":
+                    result = self.visualizer.solve_puzzle_api()
                     self.send_response(200)
                     self.send_header("Content-type", "application/json")
                     self.end_headers()
