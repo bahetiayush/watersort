@@ -54,22 +54,23 @@ body {
     height: 35px;
     width: 100%;
     border-bottom: 1px solid #ccc;
-    background-color: transparent; /* Make default background transparent */
+    background-color: transparent;
 }
 
-.slot.BROWN { background-color: brown; }
-.slot.LIGHT_GREEN { background-color: rgb(158, 218, 158); }
-.slot.BLUE { background-color: blue; }
-.slot.GREY { background-color: grey; }
-.slot.GREEN { background-color: rgb(0, 252, 0); }
+.slot.BROWN { background-color: #7f4a08; }
+.slot.LIGHT_GREEN { background-color: #61d67d; }
+.slot.BLUE { background-color: #3b2fc3; }
+.slot.GREY { background-color: #636466; }
+.slot.DARK_GREEN { background-color: #116533; }
 .slot.RED { background-color: red; }
-.slot.PINK { background-color: pink; }
-.slot.MEHENDI { background-color: #468844; } 
-.slot.LIGHT_BLUE { background-color: lightblue; }
-.slot.ORANGE { background-color: orange; }
-.slot.PURPLE { background-color: purple; }
-.slot.YELLOW { background-color: yellow; }
-.slot.NONE { background-color: whitesmoke;}
+.slot.PINK { background-color: #ea5e7b; }
+.slot.LIME_GREEN { background-color: #78970e; } 
+.slot.LIGHT_BLUE { background-color: #55a3e5; }
+.slot.ORANGE { background-color: #e88c41; }
+.slot.PURPLE { background-color: #722b95; }
+.slot.YELLOW { background-color: #f2d958; }
+.slot.NONE { background-color: #f5f5f5;}
+
 
 
 #top-moves-container {
@@ -118,3 +119,18 @@ body {
 #top-moves-container ul {
     text-align: left;
 }
+
+#image-upload-modal .close-button {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    cursor: pointer; 
+    font-size: 20px;
+    color: #333;
+}
+
+#image-upload-modal #image-preview-container {
+    max-width: 150px;
+    max-height: 300px;
+    overflow: hidden;
+  }

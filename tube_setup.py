@@ -9,12 +9,28 @@ TOTAL_COLORS = {
     "GREY",
     "ORANGE",
     "BROWN",
-    "MEHENDI",
+    "LIME_GREEN",
     "PINK",
     "PURPLE",
     "YELLOW",
-    "GREEN",
+    "DARK_GREEN",
     None,
+}
+
+COLORS_WITH_HEX = {
+  "BROWN": "#7f4a08",
+  "LIGHT_GREEN": "#61d67d",
+  "BLUE": "#3b2fc3",
+  "GREY": "#636466",
+  "DARK_GREEN": "#116533",
+  "RED": "#ff0000",
+  "PINK": "#ea5e7b",
+  "LIME_GREEN": "#78970e",
+  "LIGHT_BLUE": "#55a3e5",
+  "ORANGE": "#e88c41",
+  "PURPLE": "#722b95",
+  "YELLOW": "#f2d958",
+  "NONE": "#f5f5f5"
 }
 
 

@@ -1,7 +1,12 @@
 const serverBase = 'http://localhost:8000';
+import { ImageUploadModal } from './image-upload-modal.js';
+export { sendImageAndAnalyze }
+
+let imageUploadModal = null;
 let gameState = null;
 let isSolving = false;
 let movesAfterSolvePuzzle = 0;
+let current_gameState = { tubes: [] };
 
 function getInitialState() {
     fetch(serverBase + '/api/initial_state')
@@ -18,6 +23,45 @@ function getInitialState() {
             getTopMoves();
         })
         .catch(handleError);
+}
+
+async function sendImage() {
+    if (!imageUploadModal) {
+        imageUploadModal = new ImageUploadModal();
+    }
+    imageUploadModal.show();
+}
+
+async function sendImageAndAnalyze(file) {
+    const formData = new FormData();
+    formData.append('image', file);
+    formData.append('image_type', file.type);
+
+    try {
+        const response = await fetch(serverBase + '/api/analyze_tubes', {
+            method: 'POST',
+            body: formData
+        });
+
+        if (!response.ok) {
+            const errorData = await response.json();
+            throw new Error(`HTTP error! status: ${response.status}, message: ${errorData.error || response.statusText}`);
+        }
+
+        const data = await response.json();
+        if (data.status === "success") {
+            current_gameState = createGameState(data.tubes);
+            updateTubes(current_gameState);
+            getTopMoves();
+            console.log("Game state updated successfully after image analysis!");
+        } else {
+            console.error('Error updating game state after analysis:', data.error);
+            handleError(data.error);
+        }
+    } catch (error) {
+        console.error('Error during image analysis:', error);
+        handleError(error.message);
+}
 }
 
 function createGameState(tubes) {
@@ -49,7 +93,7 @@ function applySelectedMove() {
         const selectedMoveLabel = selectedMoveIndexElement.nextElementSibling; // Get the label element
 
         // Extract from_tube and to_tube from the label text using a regular expression
-        const match = selectedMoveLabel.textContent.match(/Move from (\w+) to (\w+)/);
+        const match = selectedMoveLabel.textContent.match(/(\w+) to (\w+)/);
 
         if (match) {
             const fromTube = match[1];
@@ -114,11 +158,13 @@ function renderButtons() {
     const buttonsContainer = document.getElementById('buttons-container');
     buttonsContainer.innerHTML = ''; // Clear existing buttons
 
+    const sendImageButton = createButton('Send Image', sendImage);
     const undoButton = createButton('Undo', sendUndoRequest);
     const runIterationButton = createButton('Run 1 Iteration', applySelectedMove);
     const solvePuzzleButton = createButton('Solve Puzzle', toggleSolvePuzzle);
+    solvePuzzleButton.id = 'solve-puzzle-button';
 
-    buttonsContainer.append(undoButton, runIterationButton, solvePuzzleButton);
+    buttonsContainer.append(sendImageButton, undoButton, runIterationButton, solvePuzzleButton);
 }
 
 function updateMoves(top_moves) {
@@ -151,7 +197,7 @@ function updateMoves(top_moves) {
 
             const label = document.createElement('label');
             label.htmlFor = `move-${index}`;
-            label.textContent = `Move from ${fromTubeName} to ${toTubeName} (Score: ${score})`;
+            label.textContent = `${fromTubeName} to ${toTubeName} (Score: ${score})`;
 
             const moveItem = document.createElement('div');
             moveItem.style.marginBottom = "5px";
@@ -165,7 +211,6 @@ function updateMoves(top_moves) {
     }
 }
 
-
 function showGameCompletedMessage(finalMoveList) {
     const topMovesHeading = document.getElementById('top-moves-heading');
     const movesList = document.getElementById('moves-list');
@@ -175,7 +220,7 @@ function showGameCompletedMessage(finalMoveList) {
     topMovesHeading.textContent = `Game Completed!`;
 
     movesList.innerHTML = '';
-    const moveListHtml = finalMoveList.map(move => `<li>Move from ${move.from} to ${move.to}</li>`).join('');
+    const moveListHtml = finalMoveList.map(move => `<li>${move.from} to ${move.to}</li>`).join('');
     movesList.innerHTML = `<ul>${moveListHtml}</ul>`;
 
     totalMovesNeeded.textContent = `Total moves: ${finalMoveList.length}${movesAfterSolvePuzzle > 0 ? `\nMoves after "Solve puzzle": ${movesAfterSolvePuzzle}` : ''}`;
@@ -183,7 +228,6 @@ function showGameCompletedMessage(finalMoveList) {
     buttonsContainer.insertAdjacentElement('afterend', totalMovesNeeded);
     renderButtons();
 }
-
 
 function handleError(error) {
     console.error('Error:', error);
@@ -197,7 +241,7 @@ function createButton(text, onClick) {
 }
 
 function toggleSolvePuzzle() {
-    const solvePuzzleButton = document.querySelector("#buttons-container button:nth-child(3)");
+    const solvePuzzleButton = document.getElementById('solve-puzzle-button');
     if (!isSolving) {
         solvePuzzleButton.textContent = 'Solving...';
         solvePuzzleButton.style.backgroundColor = 'grey';
@@ -208,7 +252,7 @@ function toggleSolvePuzzle() {
 }
 
 function solvePuzzle() {
-    const solvePuzzleButton = document.querySelector("#buttons-container button:nth-child(3)");
+    const solvePuzzleButton = document.getElementById('solve-puzzle-button');
     isSolving = true;
     solvePuzzleButton.disabled = true;
 
@@ -249,7 +293,7 @@ function stopSolve() {
 
 function resetSolveButton() {
     isSolving = false;
-    const solvePuzzleButton = document.querySelector("#buttons-container button:nth-child(3)");
+    const solvePuzzleButton = document.getElementById('solve-puzzle-button');
     solvePuzzleButton.textContent = 'Solve Puzzle';
     solvePuzzleButton.style.backgroundColor = '';
     solvePuzzleButton.disabled = false;
@@ -268,7 +312,7 @@ function applyManyMoves(solutionMoves) {
 
         if (index < solutionMoves.length) {
             const move = solutionMoves[index];
-            applyMoveBackend(move.from, move.to, () => { // Callback function to track moves
+            applyMoveBackend(move.from, move.to, () => {
                 movesMade++;
                 setTimeout(applyNextMove, 500);
             });
@@ -277,7 +321,6 @@ function applyManyMoves(solutionMoves) {
     }
     applyNextMove();
 }
-
 
 function applyMoveBackend(fromTube, toTube, callback) {
     fetch(serverBase + '/api/apply_move', {
@@ -297,15 +340,19 @@ function applyMoveBackend(fromTube, toTube, callback) {
             if (data.game_completed) {
                 showGameCompletedMessage(data.final_move_list);
             }
-            if (data.status === 'success' && callback) { // Call callback only if it exists
-                callback();
-            } else if (data.status === 'error') {
-                console.error('Error applying move:', data.message);
-                handleError(data.message);
+            else if (data.status === 'success' && !isSolving) {
                 getTopMoves();
             }
+            
+            if (data.status === 'error') {
+                console.error('Error applying move:', data.message);
+                handleError(data.message);
+            }
+            if(callback){
+                callback();
+              }
         })
         .catch(handleError);
 }
 
-getInitialState();
+getInitialState()
