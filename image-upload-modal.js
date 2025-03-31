@@ -34,8 +34,9 @@ class ImageUploadModal {
         dropArea.style.border = '2px dashed #ccc';
         dropArea.style.padding = '20px';
         dropArea.style.textAlign = 'center';
-        dropArea.textContent = 'Drag and drop your image here';
+        dropArea.textContent = 'Drag and drop your image here, or click to select'; // Updated text
         modalContent.appendChild(dropArea);
+        dropArea.addEventListener('click', () => this.fileInput.click());
 
         const closeButton = document.createElement('span');
         closeButton.id = 'close-modal-button'; // optional ID
@@ -61,6 +62,7 @@ class ImageUploadModal {
         fileInput.style.display = 'none';
         fileInput.addEventListener('change', (event) => this.handleFileSelect(event));
         modalContent.appendChild(fileInput);
+        this.fileInput = fileInput; // Store fileInput as a class property
 
 
         // Placeholder text
@@ -103,12 +105,26 @@ class ImageUploadModal {
         }).catch(error => {
             this.hide();
             alert(error);
-    });
+        });
     }
 
     handleFileSelect(event) {
         const file = event.target.files[0];
-        this.handleFile(file);
+        if (file) {
+            this.handleFile(file); // Show preview etc.
+
+            const dropArea = document.getElementById('drop-area');
+            dropArea.textContent = 'Getting tube details now...'; // Show loading message
+
+            // Call API to analyze tubes and enter edit mode
+            sendImageAndAnalyze(file).then(() => {
+                dropArea.textContent = 'Drag and drop your image here, or click to select'; // Reset text
+                this.hide(); // Hide modal on success
+            }).catch(error => {
+                this.hide(); // Hide modal on error
+                alert(error); // Show error
+            });
+        }
     }
 
     handleFile(file) {

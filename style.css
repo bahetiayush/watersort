@@ -71,6 +71,12 @@ body {
 .slot.YELLOW { background-color: #f2d958; }
 .slot.NONE { background-color: #f5f5f5;}
 
+.slot.selected {
+    border: 3px solid #000;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+    position: relative;
+    z-index: 10;
+}
 
 
 #top-moves-container {
